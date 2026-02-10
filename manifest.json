@@ -21,17 +21,13 @@
     ],
     "browser_specific_settings": {
         "gecko": {
-            "id": "month-week-picker@non-standard-input"
+            "id": "month-week-picker@non-standard-input",
+            "data_collection_permissions": {
+                "required": [
+                    "none"
+                ],
+                "optional": []
+            }
         }
-    },
-    "data_collection_permissions": {
-        "personallyIdentifiableInformation": false,
-        "healthInformation": false,
-        "financialAndPaymentInformation": false,
-        "authenticationInformation": false,
-        "personalCommunications": false,
-        "locationData": false,
-        "browsingActivity": false,
-        "technicalAndInteractionData": false
     }
 }
