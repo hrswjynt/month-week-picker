@@ -1,43 +1,82 @@
-# Svelte + Vite
+# 🗓️ Month & Week Picker for Firefox
 
-This template should help get you started developing with Svelte in Vite.
+A Firefox extension that adds native-like picker UIs for `<input type="month">` and `<input type="week">` — which Firefox doesn't support natively.
 
-## Recommended IDE Setup
+![Month Picker](https://raw.githubusercontent.com/user/month-week-picker/main/screenshots/month-picker.png)
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+## Features
 
-## Need an official Svelte framework?
+- **Month picker** — clean grid of months with year navigation
+- **Week picker** — full calendar view with ISO week numbers
+- **Locale-aware display** — shows "February 2026" instead of "2026-02"
+- **Placeholder support** — displays placeholder text when empty
+- **Clear & Today buttons** — quick actions in the picker footer
+- **Respects `disabled` & `readonly`** — won't open on restricted inputs
+- **System colors** — adapts to OS light/dark theme and accent color
+- **Shadow DOM isolation** — styles won't conflict with page CSS
+- **Zero dependencies at runtime** — single bundled content script
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+## Install
 
-## Technical considerations
+### From Firefox Add-ons (AMO)
 
-**Why use this over SvelteKit?**
+> Coming soon
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+### Manual / Development
 
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+1. Clone this repo
+2. Install dependencies and build:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Open Firefox → `about:debugging` → **This Firefox** → **Load Temporary Add-on**
+4. Select `dist/manifest.json`
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+## How It Works
 
-**Why include `.vscode/extensions.json`?**
+The extension runs a content script on all pages that:
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+1. Detects `<input type="month">` and `<input type="week">` elements
+2. Wraps each input with a calendar icon trigger
+3. Overlays a formatted display (e.g. "February 2026") on top of the raw ISO value
+4. Opens a Svelte-powered picker popup on click/focus
+5. Sets the input value and dispatches `input`/`change` events on selection
 
-**Why enable `checkJs` in the JS template?**
+The raw ISO value (`2026-02`, `2026-W07`) is preserved in `input.value` for form compatibility.
 
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
+## Scripts
 
-**Why is HMR not preserving my local component state?**
+| Command | Description |
+|---|---|
+| `npm run build` | Build to `dist/` |
+| `npm run package` | Build + create `month-week-picker.zip` for AMO |
+| `npm run watch` | Rebuild on file changes |
 
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
+## Tech Stack
 
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
+- **Svelte 5** — picker UI components
+- **Vite** — bundling
+- **CSS System Colors** — `AccentColor`, `Canvas`, `CanvasText`, `GrayText`
+- **Manifest V3** — modern Firefox extension format
 
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+## Project Structure
+
 ```
+src/
+├── content.js          # Content script entry point
+├── picker.css          # Picker styles (system colors)
+└── lib/
+    ├── PickerHost.svelte   # Popup container, positioning, footer
+    ├── MonthPicker.svelte  # Month grid picker
+    ├── WeekPicker.svelte   # Week calendar picker
+    ├── registry.js         # Picker component registry
+    └── utils.js            # Date parsing, formatting, helpers
+icons/                  # Extension icons (48, 96, 128px)
+manifest.json           # Extension manifest
+test.html               # Test page with various scenarios
+```
+
+## License
+
+MIT
