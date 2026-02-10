@@ -1,0 +1,367 @@
+@import "tailwindcss";
+
+/* ===== Non-Standard Input Picker Styles ===== */
+/* Uses CSS system colors to match the OS theme and accent color */
+
+/* Host container */
+.nsi-host {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: CanvasText;
+    width: fit-content;
+    color-scheme: light dark;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Picker panel */
+.nsi-picker {
+    background: Canvas;
+    border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+    border-radius: 12px;
+    box-shadow:
+        0 10px 25px -5px color-mix(in srgb, CanvasText 15%, transparent),
+        0 8px 10px -6px color-mix(in srgb, CanvasText 10%, transparent);
+    min-width: 260px;
+    animation: nsi-fadein 0.15s ease-out;
+    user-select: none;
+    overflow: hidden;
+}
+
+/* Inner content padding (picker grids, nav) */
+.nsi-picker-content {
+    padding: 16px;
+}
+
+/* Navigation bar */
+.nsi-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+.nsi-nav-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: CanvasText;
+    letter-spacing: -0.01em;
+}
+
+.nsi-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: GrayText;
+    transition: all 0.15s ease;
+}
+
+.nsi-nav-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, CanvasText 8%, transparent);
+    color: CanvasText;
+}
+
+.nsi-nav-btn:active:not(:disabled) {
+    background: color-mix(in srgb, CanvasText 15%, transparent);
+}
+
+.nsi-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.nsi-nav-btn:focus-visible {
+    outline: 2px solid AccentColor;
+    outline-offset: 2px;
+}
+
+/* Grids */
+.nsi-grid {
+    display: grid;
+    gap: 4px;
+}
+
+.nsi-grid-month {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.nsi-grid-week {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+/* Grid cells (month/week buttons) */
+.nsi-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: CanvasText;
+    transition: all 0.12s ease;
+    position: relative;
+}
+
+.nsi-cell:hover {
+    background: color-mix(in srgb, AccentColor 12%, transparent);
+    color: AccentColor;
+}
+
+.nsi-cell:active {
+    background: color-mix(in srgb, AccentColor 20%, transparent);
+    transform: scale(0.96);
+}
+
+.nsi-cell:focus-visible {
+    outline: 2px solid AccentColor;
+    outline-offset: 2px;
+}
+
+/* Current month/week indicator */
+.nsi-cell.nsi-current {
+    color: AccentColor;
+    font-weight: 600;
+}
+
+.nsi-cell.nsi-current::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: AccentColor;
+}
+
+/* Selected state */
+.nsi-cell.nsi-selected {
+    background: AccentColor;
+    color: AccentColorText;
+    font-weight: 600;
+    box-shadow: 0 1px 3px color-mix(in srgb, AccentColor 40%, transparent);
+}
+
+.nsi-cell.nsi-selected:hover {
+    background: color-mix(in srgb, AccentColor 85%, black);
+    color: AccentColorText;
+}
+
+.nsi-cell.nsi-selected.nsi-current::after {
+    background: AccentColorText;
+}
+
+/* Fade-in animation */
+@keyframes nsi-fadein {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ===== Week Picker Calendar ===== */
+
+.nsi-picker-week-cal {
+    min-width: 320px;
+    width: 360px;
+}
+
+.nsi-cal {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+.nsi-cal-day-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: GrayText;
+    text-align: center;
+    padding: 4px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nsi-cal-wk-header {
+    width: 40px;
+}
+
+/* Calendar row — entire row is selectable */
+.nsi-cal-row {
+    border-radius: 6px;
+    transition: background 0.1s ease;
+    cursor: pointer;
+}
+
+.nsi-cal-row:hover {
+    background: color-mix(in srgb, AccentColor 12%, transparent);
+}
+
+.nsi-cal-row:hover .nsi-cal-wk-btn,
+.nsi-cal-row:hover .nsi-cal-day-btn {
+    color: AccentColor;
+}
+
+/* Selected week row */
+.nsi-cal-row.nsi-selected {
+    background: AccentColor;
+}
+
+.nsi-cal-row.nsi-selected .nsi-cal-wk-btn,
+.nsi-cal-row.nsi-selected .nsi-cal-day-btn {
+    color: AccentColorText;
+}
+
+.nsi-cal-row.nsi-selected:hover {
+    background: color-mix(in srgb, AccentColor 85%, black);
+}
+
+/* Current week row */
+.nsi-cal-row.nsi-current .nsi-cal-wk-btn {
+    color: AccentColor;
+    font-weight: 700;
+}
+
+.nsi-cal-row.nsi-selected.nsi-current .nsi-cal-wk-btn {
+    color: AccentColorText;
+}
+
+/* Week number button */
+.nsi-cal-wk-num {
+    padding: 2px 0;
+}
+
+.nsi-cal-wk-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 4px 2px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: GrayText;
+    transition: color 0.1s ease;
+}
+
+.nsi-cal-wk-btn:focus-visible {
+    outline: 2px solid AccentColor;
+    outline-offset: 1px;
+}
+
+/* Day cells */
+.nsi-cal-day {
+    text-align: center;
+    padding: 1px;
+}
+
+.nsi-cal-day-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 5px 0;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 400;
+    color: CanvasText;
+    transition: color 0.1s ease;
+}
+
+.nsi-cal-day-btn:disabled {
+    cursor: default;
+    visibility: hidden;
+}
+
+/* Overflow days (from adjacent months) */
+.nsi-cal-day.nsi-overflow .nsi-cal-day-btn {
+    color: GrayText;
+    opacity: 0.5;
+}
+
+/* Today indicator */
+.nsi-cal-day.nsi-today .nsi-cal-day-btn {
+    font-weight: 700;
+    position: relative;
+}
+
+.nsi-cal-day.nsi-today .nsi-cal-day-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: AccentColor;
+}
+
+.nsi-cal-row.nsi-selected .nsi-cal-day.nsi-today .nsi-cal-day-btn::after {
+    background: AccentColorText;
+}
+
+/* Selected row overflow text should also use accent text color */
+.nsi-cal-row.nsi-selected .nsi-cal-day.nsi-overflow .nsi-cal-day-btn {
+    color: AccentColorText;
+    opacity: 0.6;
+}
+
+/* ── Picker Footer (Clear / This month|week) ── */
+.nsi-picker-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border-top: 1px solid color-mix(in srgb, CanvasText 12%, transparent);
+}
+
+.nsi-footer-btn {
+    background: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: GrayText;
+    transition: color 0.15s, background 0.15s;
+}
+
+.nsi-footer-btn:hover {
+    color: CanvasText;
+    background: color-mix(in srgb, CanvasText 8%, transparent);
+}
+
+.nsi-footer-today {
+    color: AccentColor;
+    font-weight: 600;
+}
+
+.nsi-footer-today:hover {
+    background: color-mix(in srgb, AccentColor 12%, transparent);
+    color: AccentColor;
+}
