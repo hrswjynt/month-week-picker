@@ -179,8 +179,8 @@
 /* ===== Week Picker Calendar ===== */
 
 .nsi-picker-week-cal {
-    min-width: 320px;
-    width: 360px;
+    min-width: 280px;
+    width: 300px;
 }
 
 .nsi-cal {

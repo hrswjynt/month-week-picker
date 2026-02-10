@@ -45,6 +45,19 @@ function handleInput(input) {
     input.parentNode.insertBefore(wrapper, input);
     wrapper.appendChild(input);
 
+    // Sync wrapper visibility with input (respects d-none, display:none, etc.)
+    const syncVisibility = () => {
+        const hidden = getComputedStyle(input).display === 'none';
+        wrapper.style.display = hidden ? 'none' : 'inline-flex';
+    };
+    syncVisibility();
+
+    // Watch for class/style changes on the input to keep wrapper in sync
+    new MutationObserver(syncVisibility).observe(input, {
+        attributes: true,
+        attributeFilter: ['class', 'style'],
+    });
+
     // Make original input text invisible (overlay shows formatted text)
     input.style.color = 'transparent';
     input.style.caretColor = 'transparent';

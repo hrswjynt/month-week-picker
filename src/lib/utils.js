@@ -63,9 +63,54 @@ export function dispatchInputEvents(element, value) {
 }
 
 /**
+ * Locale-aware week label templates.
+ * {w} = translated word, {n} = week number, {y} = year.
+ */
+const WEEK_LOCALES = {
+    // Western — "{word} {num}, {year}"
+    en: { word: "Week", tpl: "{w} {n}, {y}" },
+    id: { word: "Minggu", tpl: "{w} {n}, {y}" },
+    de: { word: "Woche", tpl: "{w} {n}, {y}" },
+    fr: { word: "Semaine", tpl: "{w} {n}, {y}" },
+    es: { word: "Semana", tpl: "{w} {n}, {y}" },
+    pt: { word: "Semana", tpl: "{w} {n}, {y}" },
+    it: { word: "Settimana", tpl: "{w} {n}, {y}" },
+    nl: { word: "Week", tpl: "{w} {n}, {y}" },
+    pl: { word: "Tydzień", tpl: "{w} {n}, {y}" },
+    tr: { word: "Hafta", tpl: "{w} {n}, {y}" },
+    ru: { word: "Неделя", tpl: "{w} {n}, {y}" },
+
+    // CJK — year first
+    ja: { word: "週", tpl: "{y}年 第{n}{w}" },
+    zh: { word: "周", tpl: "{y}年 第{n}{w}" },
+    ko: { word: "주", tpl: "{y}년 제{n}{w}" },
+
+    // RTL — Eastern Arabic numerals
+    ar: { word: "أسبوع", tpl: "{w} {n}، {y}", nu: "arab" },
+};
+
+/** Formats a week number + year into a locale-aware label. */
+function formatWeekLabel(week, year) {
+    const lang = (navigator.language || 'en').slice(0, 2);
+    const locale = WEEK_LOCALES[lang] || WEEK_LOCALES.en;
+    const numOpts = { minimumIntegerDigits: 2 };
+    const yearOpts = { useGrouping: false };
+    if (locale.nu) {
+        numOpts.numberingSystem = locale.nu;
+        yearOpts.numberingSystem = locale.nu;
+    }
+    const numFmt = new Intl.NumberFormat(navigator.language || 'en', numOpts);
+    const yearFmt = new Intl.NumberFormat(navigator.language || 'en', yearOpts);
+    return locale.tpl
+        .replace('{w}', locale.word)
+        .replace('{n}', numFmt.format(week))
+        .replace('{y}', yearFmt.format(year));
+}
+
+/**
  * Formats a raw input value into a human-readable, locale-aware string.
  * "2026-02" → "February 2026" (or localized equivalent)
- * "2026-W07" → "Week 07, 2026"
+ * "2026-W07" → "Week 07, 2026" (or localized equivalent)
  */
 export function formatDisplayValue(type, rawValue) {
     if (!rawValue) return '';
@@ -84,9 +129,7 @@ export function formatDisplayValue(type, rawValue) {
     if (type === 'week') {
         const parsed = parseWeekValue(rawValue);
         if (!parsed) return rawValue;
-        const weekStr = String(parsed.week).padStart(2, '0');
-        // No standard Intl for weeks, but we localize what we can
-        return `Week ${weekStr}, ${parsed.year}`;
+        return formatWeekLabel(parsed.week, parsed.year);
     }
 
     return rawValue;
@@ -106,6 +149,7 @@ export function updateDisplayOverlay(input) {
     if (!overlay) {
         overlay = document.createElement('span');
         overlay.className = 'nsi-display-overlay';
+        const cs = getComputedStyle(input);
         overlay.style.cssText = `
             position: absolute;
             left: 0;
@@ -115,8 +159,12 @@ export function updateDisplayOverlay(input) {
             display: flex;
             align-items: center;
             pointer-events: none;
-            padding-left: ${getComputedStyle(input).paddingLeft || '8px'};
-            font: inherit;
+            padding-left: ${cs.paddingLeft || '8px'};
+            font-family: ${cs.fontFamily};
+            font-size: ${cs.fontSize};
+            font-weight: ${cs.fontWeight};
+            font-style: ${cs.fontStyle};
+            letter-spacing: ${cs.letterSpacing};
             color: inherit;
             background: inherit;
             border-radius: inherit;
